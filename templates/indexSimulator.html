@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Calentador de Temperatura y Gráficos Temporales</title>
+  <!-- Socket.IO -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.6.1/socket.io.js"></script>
+  <!-- FusionCharts para la animación del calentador -->
+  <script type="text/javascript" src="https://cdn.fusioncharts.com/fusioncharts/latest/fusioncharts.js"></script>
+  <script type="text/javascript" src="https://cdn.fusioncharts.com/fusioncharts/latest/themes/fusioncharts.theme.fusion.js"></script>
+  <script type="text/javascript" src="/meter_animation.js"></script>
+  
+  <!-- Chart.js para los gráficos temporales deslizantes -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/luxon@3.3.0/build/global/luxon.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-streaming@2.0.0"></script>
+  
+  <style>
+    .container {
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      gap: 20px;
+      margin: 20px;
+    }
+    
+    .panel {
+      border: 1px solid #ddd;
+      padding: 15px;
+      border-radius: 5px;
+      width: 100%;
+      max-width: 500px;
+    }
+    
+    .charts-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    
+    button {
+      padding: 10px 15px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    
+    button:hover {
+      background-color: #45a049;
+    }
+    
+    h2 {
+      text-align: center;
+      color: #333;
+    }
+    
+    .chart-container {
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+
+<body>
+  <h2>Simulación de Calentador de Temperatura - Control de Temperatura con Señal Senoidal</h2>
+  <div class="container">
+  
+  <!-- Panel del calentador de animación -->
+  <div class="panel">
+    <h2>Calentador de Temperatura</h2>
+    <div id='chart-container'>Reload Page if you don't see animation</div>
+      <!-- El gráfico se renderizará aquí -->
+  </div>
+
+    <!-------------------------------------------------------------------------------------------->
+    <!--------------------------------   Panel de los gráficos temporales -------------------------->
+    <!-------------------------------------------------------------------------------------------->
+    <div class="panel charts-panel">
+      <h2>Gráficos con Ventana Temporal Deslizante</h2>
+      
+      <!-- Gráfico de temperatura -->
+      <div class="chart-container">
+        <canvas id="temperatureChart" width="500" height="180"></canvas>
+      </div>
+      
+      <!-- Gráfico de la señal de control -->
+      <div class="chart-container">
+        <canvas id="controlChart" width="500" height="180"></canvas>
+      </div>
+      
+      <!-- Gráfico de la señal senoidal -->
+      <div class="chart-container">
+        <canvas id="sinusoidalChart" width="500" height="180"></canvas>
+      </div>
+    </div>
+    </div>
+    <!-------------------------------------------------------------------------------------------->
+    <!-------------------------------------------------------------------------------------------->
+
+  <script>
+    // Inicializar Socket.IO
+    const socket = io();
+    
+    // Escuchar las actualizaciones del servidor
+    socket.on('actualizacion_valor', function(data) {
+      console.log('Temperatura recibida del servidor:', data.valor);
+      actualizarSistema(data.valor, data.ctrl);
+      window.setSinusoidalAreaPercentage(data.ciclo);
+    });
+    
+    socket.on('change_ref', function(data){
+      change_ref(data.valor)
+    });
+
+    // Función para enviar comandos al puerto serial
+    function enviarComandoSerial(valor) {
+      fetch('/enviar_comando', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ comando: valor.toString() }),
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log('Comando enviado:', data);
+      })
+      .catch((error) => {
+        console.error('Error al enviar comando:', error);
+      });
+    }
+
+    //-------------------------------------------------------------------
+    // Variables para la señal senoidal estática
+    //-------------------------------------------------------------------
+    let sinusoidalAreaPercentage = 50; // Porcentaje del área bajo la curva (0-100%)
+    
+    // Generar datos estáticos para un ciclo completo de senoidal
+    function generateStaticSinusoidalData() {
+      const points = 100; // Número de puntos para dibujar la curva
+      const data = [];
+      for (let i = 0; i <= points; i++) {
+        const x = (i / points) * 100; // X de 0 a 100 (porcentaje del ciclo)
+        //const y = 50 + 50 * Math.sin((i / points) * 2 * Math.PI); // Y de 0 a 100   ciclo completo de la senoidal
+        const y = 100 * Math.sin((i / points) * Math.PI); // Y de 0 a 100
+        data.push({ x, y });
+      }
+      return data;
+    }
+    
+    // Función para actualizar el porcentaje del área bajo la curva
+    function updateSinusoidalArea(percentage) {
+      sinusoidalAreaPercentage = Math.max(0, Math.min(100, percentage));
+      if (window.sinusoidalChart) {
+        updateAreaFill();
+      }
+    }
+    
+    // Función para actualizar el relleno del área
+    function updateAreaFill() {
+      const chart = window.sinusoidalChart;
+      const totalPoints = chart.data.datasets[0].data.length;
+      const fillToIndex = Math.floor((sinusoidalAreaPercentage / 100) * totalPoints);
+      
+      // - Crear datos para el área sombreada, desde el inicio del ciclo hasta el punto
+      //const areaData = chart.data.datasets[0].data.slice(0, fillToIndex + 1);
+      // - desde el punto hasta el fin del ciclo
+      const areaData = chart.data.datasets[0].data.slice(fillToIndex, 100);
+      
+      // Actualizar el dataset del área
+      chart.data.datasets[1].data = areaData;
+      chart.update('none'); // Actualizar sin animación
+    }
+    
+    //-------------------------------------------------------------------
+    // Actualización del sistema de temperatura
+    //-------------------------------------------------------------------
+    function actualizarSistema(temperatura, control) {
+      // Convertir a número si es string
+      temperatura = parseFloat(temperatura); 
+      control = parseFloat(control);
+      
+      // Actualizar visualización del calentador
+      if (window.tankSim) {
+        window.tankSim.feedData(`&value=${temperatura}`);
+      }
+      
+      if (window.temperatureChart && window.controlChart && window.sinusoidalChart) {
+        const now = Date.now();
+        
+        // Actualizar gráfico de temperatura
+        window.temperatureChart.data.datasets[0].data.push({
+          x: now,
+          y: temperatura 
+        });
+        // Añadir valor de referencia al segundo dataset
+        window.temperatureChart.data.datasets[1].data.push({
+          x: now,
+          y: referenceValue 
+        });
+        
+        // Actualizar gráfico de control
+        window.controlChart.data.datasets[0].data.push({
+          x: now,
+          y: control
+        });
+        
+        // El gráfico senoidal es estático, no necesita actualizaciones en tiempo real
+      }
+      
+      console.log("Temperatura actual:", temperatura, "°C");
+    }
+
+    // Parámetros del sistema de temperatura
+    var targetValue = 25; // Temperatura objetivo en °C
+    var upperLimit = 100; // Límite superior en °C
+    var lowerLimit = 0;   // Límite inferior en °C
+    var cylOriginY = 320;
+    var cylHeight = 250+190;
+    var A1 = -97/256;
+    var B1 = 70+320;
+    
+    let referenceValue = 25; // Temperatura de referencia inicial
+    function change_ref(val) {
+        referenceValue = parseFloat(val); 
+
+        if (window.tankSim) {
+          //let currentData = window.tankSim.getJSONData()
+          let currentData = JSON.parse(JSON.stringify(window.tankSim.getJSONData()));
+          let items = currentData.trendpoints.point
+          items[0].startValue = val*0.99
+          items[1].startValue = val*1.01
+          items[2].startValue = val*0.99
+          items[2].endValue = val*1.01
+          window.tankSim.setJSONData(currentData);
+        }
+    }
+    change_ref(25); // Temperatura de referencia inicial
+
+    //-------------------------------------------------------------------
+    //---------------- Creación de gráficos temporales
+    //-------------------------------------------------------------------
+    
+    const ventana_ms = 60 * 1000; // 60 segundos
+    
+    // Crear los gráficos cuando se cargue la página
+    document.addEventListener('DOMContentLoaded', () => {
+      // Configuración común para todos los gráficos
+      const chartConfig = {
+        animation: false,
+        scales: {
+          x: {
+            type: 'realtime',
+            adapters: {
+              date: luxon
+            },
+            time: {
+              unit: 'second',
+              displayFormats: {
+                second: 'HH:mm:ss'
+              }
+            },
+            realtime: {
+              duration: ventana_ms,
+              refresh: 1000,
+              delay: 0,
+              onRefresh: null
+            }
+          },
+          y: {
+            beginAtZero: true
+          }
+        },
+        plugins: {
+          legend: {
+            display: true,
+            position: 'top'
+          }
+        }
+      };
+      
+      // Crear primer gráfico - Temperatura
+      const ctx1 = document.getElementById('temperatureChart').getContext('2d');
+      const temperatureChart = new Chart(ctx1, {
+        type: 'line',
+        data: {
+          datasets: [
+            {
+              label: 'Temperatura Actual (°C)',
+              data: [],
+              borderColor: 'red',
+              backgroundColor: 'rgba(255, 0, 0, 0.1)',
+              borderWidth: 2,
+              fill: true,
+              tension: 0.3
+            },
+            {
+              label: 'Temperatura de Referencia (°C)',
+              data: [],
+              borderColor: 'green',
+              borderWidth: 2,
+              borderDash: [5, 5],
+              fill: false,
+              tension: 0,
+              pointRadius: 0,
+              spanGaps: true
+            }
+          ]
+        },
+        options: {
+          ...chartConfig,
+          scales: {
+            ...chartConfig.scales,
+            y: {
+              beginAtZero: true,
+              min: 0,
+              max: 100,
+              title: {
+                display: true,
+                text: 'Temperatura (°C)'
+              }
+            }
+          },
+          plugins: {
+            ...chartConfig.plugins,
+            title: {
+              display: true,
+              text: 'Temperatura del Sistema'
+            }
+          }
+        },
+        plugins: [ChartStreaming]
+      });
+      
+      // Crear segundo gráfico - Señal de control
+      const ctx2 = document.getElementById('controlChart').getContext('2d');
+      const controlChart = new Chart(ctx2, {
+        type: 'line',
+        data: {
+          datasets: [{
+            label: 'Potencia de Calentamiento (%)',
+            data: [],
+            borderColor: 'orange',
+            backgroundColor: 'rgba(255, 165, 0, 0.1)',
+            borderWidth: 2,
+            fill: true,
+            tension: 0.3
+          }]
+        },
+        options: {
+          ...chartConfig,
+          scales: {
+            ...chartConfig.scales,
+            y: {
+              ...chartConfig.scales.y,
+              min: 0,
+              max: 100,
+              title: {
+                display: true,
+                text: 'Potencia (%)'
+              }
+            }
+          },
+          plugins: {
+            ...chartConfig.plugins,
+            title: {
+              display: true,
+              text: 'Señal de Control'
+            }
+          }
+        },
+        plugins: [ChartStreaming]
+      });
+      
+      // Crear tercer gráfico - Señal senoidal estática
+      const ctx3 = document.getElementById('sinusoidalChart').getContext('2d');
+      const sinusoidalChart = new Chart(ctx3, {
+        type: 'line',
+        data: {
+          datasets: [
+            {
+              label: 'Señal de potencia',
+              data: generateStaticSinusoidalData(),
+              borderColor: 'purple',
+              backgroundColor: 'transparent',
+              borderWidth: 3,
+              fill: false,
+              tension: 0.4,
+              pointRadius: 0
+            },
+            {
+              label: `Fracción conducida`,
+              data: [],
+              borderColor: 'rgba(148, 0, 211, 0.8)',
+              backgroundColor: 'rgba(148, 0, 211, 0.3)',
+              borderWidth: 2,
+              fill: true,
+              tension: 0.4,
+              pointRadius: 0
+            }
+          ]
+        },
+        options: {
+          animation: false,
+          responsive: true,
+          scales: {
+            x: {
+              type: 'linear',
+              position: 'bottom',
+              min: 0,
+              max: 100,
+              title: {
+                display: true,
+                text: 'Progreso del Ciclo (%)'
+              },
+              grid: {
+                display: true
+              }
+            },
+            y: {
+              min: 0,
+              max: 100,
+              title: {
+                display: true,
+                text: 'Amplitud (%)'
+              },
+              grid: {
+                display: true
+              }
+            }
+          },
+          plugins: {
+            legend: {
+              display: true,
+              position: 'top'
+            },
+            title: {
+              display: true,
+              text: 'Señal Senoidal - Área Variable'
+            }
+          },
+          interaction: {
+            intersect: false,
+            mode: 'index'
+          }
+        }
+      });
+      
+      // Hacemos que los gráficos sean globales
+      window.temperatureChart = temperatureChart;
+      window.controlChart = controlChart;
+      window.sinusoidalChart = sinusoidalChart;
+      
+      // Inicializar el área sombreada
+      updateAreaFill();
+    });
+    
+    // Función global para cambiar el porcentaje del área (llamable desde fuera)
+    window.setSinusoidalAreaPercentage = function(percentage) {
+      updateSinusoidalArea(percentage);
+      //console.log(`Área bajo la curva senoidal establecida al ${percentage}%`);
+    };
+    
+    // Ejemplo de uso automático (puedes eliminarlo si no lo necesitas)
+    // setInterval(() => {
+    //   const randomPercentage = Math.random() * 100;
+    //   window.setSinusoidalAreaPercentage(randomPercentage);
+    // }, 3000);
+    //});
+
+  </script>
+
+<div style="text-align: center; width: 100%;">
+    <iframe id="conf_frame" style="width: 100%; height: 650px; border: none;" src="configuraciones.html" title="Panel de Configuraciones"></iframe>
+</div>
+
+</body>
+</html>

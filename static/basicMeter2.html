@@ -1,0 +1,191 @@
+<html>
+<head>
+	<title>My first chart using FusionCharts Suite XT</title>
+	<script type="text/javascript" src="https://cdn.fusioncharts.com/fusioncharts/latest/fusioncharts.js"></script>
+	<script type="text/javascript" src="https://cdn.fusioncharts.com/fusioncharts/latest/themes/fusioncharts.theme.fusion.js"></script>
+	<script type="text/javascript">
+		FusionCharts.ready(function(){
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+			var chartObj = new FusionCharts({
+    type: 'angulargauge',
+    renderAt: 'chart-container',
+    width: '450',
+    height: '300',
+    dataFormat: 'json',
+    dataSource: {
+        "chart": {
+            "caption": "Temperatura del liquido en el contenedor",
+            "subcaption": "Experimento del calentador de agua",
+            "plotToolText": "Current Score: $value",
+            "theme": "fusion",
+            "chartBottomMargin": "50",
+            "showValue": "1"
+        },
+        "colorRange": {
+            "color": [{
+                "minValue": "0",
+                "maxValue": "4.5",
+                "code": "#080087"
+            },{
+                "minValue": "4.5",
+                "maxValue": "16",
+                "code": "#1a94a7"
+            },{
+                "minValue": "16",
+                "maxValue": "22",
+                "code": "#1aa771"
+            }, {
+                "minValue": "22",
+                "maxValue": "28",
+                "code": "#32bb24"
+            }, {
+                "minValue": "26",
+                "maxValue": "40",
+                "code": "#7dc00d"
+            }, {
+                "minValue": "40",
+                "maxValue": "60",
+                "code": "#ff8b0c"
+            }, {
+                "minValue": "60",
+                "maxValue": "80",
+                "code": "#901a1a"
+            }, {
+                "minValue": "80",
+                "maxValue": "100",
+                "code": "#d10000"
+            }]
+        },
+        "dials": {
+            "dial": [{
+                "value": "8.9"
+            }]
+        },
+        "trendPoints": {
+            "point": [{
+                "startValue": "6.8",
+                "color": "#0075c2",
+                "dashed": "1"
+            }, {
+                "startValue": "9.5",
+                "color": "#0075c2",
+                "dashed": "1"
+            }, {
+                "startValue": "6.8",
+                "endValue": "9.5",
+                "color": "#0075c2",
+                "radius": "185",
+                "innerRadius": "80"
+            }]
+        },
+        "annotations": {
+            "origw": "450",
+            "origh": "300",
+            "autoscale": "1",
+            "showBelow": "0",
+            "groups": [{
+                "id": "arcs",
+                "items": [{
+                    "id": "national-cs-bg",
+                    "type": "rectangle",
+                    "x": "$chartCenterX+2",
+                    "y": "$chartEndY - 45",
+                    "tox": "$chartCenterX + 130",
+                    "toy": "$chartEndY - 25",
+                    "fillcolor": "#f8bd19"
+                }, {
+                    "id": "national-cs-text",
+                    "type": "Text",
+                    "color": "#ffffff",
+                    "label": "National Average : 7.2",
+                    "fontSize": "12",
+                    "align": "left",
+                    "x": "$chartCenterX + 7",
+                    "y": "$chartEndY - 35"
+                }, {
+                    "id": "state-cs-bg",
+                    "type": "rectangle",
+                    "x": "$chartCenterX-2",
+                    "y": "$chartEndY - 45",
+                    "tox": "$chartCenterX - 103",
+                    "toy": "$chartEndY - 25",
+                    "fillcolor": "#6baa01"
+                }, {
+                    "id": "state-cs-text",
+                    "type": "Text",
+                    "color": "#ffffff",
+                    "label": "State Average : 8",
+                    "fontSize": "12",
+                    "align": "right",
+                    "x": "$chartCenterX - 7",
+                    "y": "$chartEndY - 35"
+                }, {
+                    "id": "store-cs-bg",
+                    "type": "rectangle",
+                    "x": "$chartCenterX-130",
+                    "y": "$chartEndY - 22",
+                    "tox": "$chartCenterX + 150",
+                    "toy": "$chartEndY - 2",
+                    "fillcolor": "#0075c2"
+                }, {
+                    "id": "state-cs-text",
+                    "type": "Text",
+                    "color": "#ffffff",
+                    "label": "Referencia \u00B1 1%",
+                    "fontSize": "12",
+                    "align": "center",
+                    "x": "$chartCenterX + 10",
+                    "y": "$chartEndY - 12"
+                }]
+            }]
+        }
+    }
+}
+);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+			chartObj.render();
+		});
+	</script>
+	</head>
+	<body>
+		<div id="chart-container">FusionCharts XT will load here!</div>
+	</body>
+</html>

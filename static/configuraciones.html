@@ -1,0 +1,397 @@
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuración del Sistema</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .title {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #333;
+        }
+        .config-section {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .horizontal-layout {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .config-panel {
+            flex: 1;
+            min-width: 300px;
+            background-color: #f9f9f9;
+            border-radius: 6px;
+            padding: 15px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .panel-title {
+            margin-top: 0;
+            color: #2c3e50;
+            font-size: 18px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .reset-btn{
+            background-color: #a10000;
+            color: #FFFFFF;
+            width: 25%;
+            border: #000000;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+        .serial-status {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 4px;
+            font-weight: bold;
+            text-align: center;
+        }
+        .status-uncertain {
+            background-color: #f8f9fa;
+            color: #6c757d;
+            border: 1px solid #dee2e6;
+        }
+        .status-connected {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sección de configuración horizontal (2 div) -->
+        <div class="config-section">
+            <div class="horizontal-layout">
+                <!-- Panel izquierdo: Configuración del sistema -->
+                <div class="config-panel">
+                    <h3 class="panel-title">Configuración del Sistema</h3>
+                    
+                    <div class="form-group">
+                        <label for="system-param1">Temperatura inicial (T<sub>0</sub>)</label>
+                        <input type="text" id="system-param1" placeholder="0", min="0", max="800">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="system-param2">Calor específico del liquido (C<sub>e</sub>)</label>
+                        <input type="number" id="system-param2" placeholder="Ce" min="0">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="system-param3">Cantidad en masa del liquido (m)</label>
+                        <input type="text" id="system-param3" placeholder="m", min="0">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="system-param4">Referencia</label>
+                        <input type="text" id="system-param4" placeholder="Referencia">
+                    </div>
+                    <button id="changeref" onclick="cambiarparametros()">Cambiar parametros</button> 
+                    <button id="start-simulation">Iniciar Simulación</button>                   
+                </div>
+                
+                <!-- Panel derecho: Configuración del puerto serial -->
+                <div class="config-panel">
+                    <h3 class="panel-title">Configuración del Puerto Serial</h3>
+                    
+                    <div class="form-group">
+                        <label for="serial-port">Puerto:</label>
+                        <select id="serial-port" onchange="toggleCustomPortInput()">
+                            <option value="">Seleccionar puerto</option>
+                            <option value="COM1">COM1</option>
+                            <option value="COM2">COM2</option>
+                            <option value="COM3">COM3</option>
+                            <option value="COM4">COM4</option>
+                            <option value="/dev/ttyUSB0">ttyUSB0</option>
+                            <option value="/dev/ttyUSB1">ttyUSB2</option>
+                            <option value="custom">Otro...</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group" id="custom-port-group" style="display:none;">
+                        <label for="custom-port">Ingrese el puerto:</label>
+                        <input type="text" id="custom-port" placeholder="Ejemplo: COM7" />
+                    </div>
+                    
+                    <script>
+                    function toggleCustomPortInput() {
+                        const select = document.getElementById('serial-port');
+                        const customInput = document.getElementById('custom-port-group');
+                        customInput.style.display = (select.value === 'custom') ? 'block' : 'none';
+                    }
+                    </script>
+                    
+                    <div class="form-group">
+                        <label for="baud-rate">Velocidad (baudios):</label>
+                        <select id="baud-rate">
+                            <option value="9600">9600</option>
+                            <option value="19200">19200</option>
+                            <option value="38400">38400</option>
+                            <option value="57600">57600</option>
+                            <option value="115200">115200</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Sección de configuración vertical 
+                    <div class="form-group">
+                        <label for="data-bits">Bits de datos:</label>
+                        <select id="data-bits">
+                            <option value="8">8</option>
+                            <option value="7">7</option>
+                            <option value="6">6</option>
+                            <option value="5">5</option>
+                        </select>
+                    </div>
+                    -->
+                    <div id="serial-status" class="serial-status status-uncertain">
+                        - Serial incierto -
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div>
+            <button class="reset-btn" id="reset-simulation">Reestablecer simulación</button>  
+        </div>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.6.1/socket.io.js"></script>
+    <script>
+        // -----------------------------------------------------------------------------------
+        // Inicio de simulación
+        // -----------------------------------------------------------------------------------
+        document.getElementById('start-simulation').addEventListener('click', function() {
+           if (validateAllFields()) {
+                iniciarSimulacion();
+            } else {
+                alert('Por favor, corrija los errores antes de iniciar la simulación.');
+            }
+        });
+
+        const socket_conf = io();
+
+        function cambiarparametros() {
+             if (validateAllFields()) {
+                const param1 = document.getElementById('system-param1').value;
+                const param2 = document.getElementById('system-param2').value;
+                const param3 = document.getElementById('system-param3').value;
+                const param4 = document.getElementById('system-param4').value;
+                alert(`Parámetros cambiados: \r h0 no repercute en el cambio ${param1},\r ${param2},\r ${param3},\r ${param4}`);
+                // Enviar los parámetros al servidor
+                socket_conf.emit('changeparameter', {
+                   systemParam1: param1,
+                    systemParam2: param2,   
+                    systemParam3: param3,
+                    systemParam4: param4,
+                });
+            } else {
+                alert('Por favor, corrija los errores antes de cambiar los parámetros.');
+            }
+            window.parent.change_ref(systemParam4); 
+        }
+
+        function iniciarSimulacion(){
+            const systemParam1 = document.getElementById('system-param1').value;
+            const systemParam2 = document.getElementById('system-param2').value;
+            const systemParam3 = document.getElementById('system-param3').value;
+            const systemParam4 = document.getElementById('system-param4').value;
+            var serialPort = document.getElementById('serial-port').value;
+            if(serialPort=='custom'){
+                serialPort = document.getElementById('custom-port').value;
+            }
+            const baudRate = document.getElementById('baud-rate').value;
+
+            alert(`Iniciando simulación con los siguientes parámetros:\n
+                T0: ${systemParam1}\n
+                Ce: ${systemParam2}\n
+                Masa: ${systemParam3}\n
+                Referencia: ${systemParam4}\n
+                Puerto: ${serialPort}\n
+                Velocidad: ${baudRate}`);
+            
+            window.parent.change_ref(systemParam4); // Cambiar la referencia en el iframe padre
+            //lanzarNewRef(systemParam4)
+            lanzarIMGanimation();
+
+            // Enviar los parámetros al servidor
+            socket_conf.emit('startSimulation', {
+                systemParam1: systemParam1,
+                systemParam2: systemParam2,
+                systemParam3: systemParam3,
+                systemParam4: systemParam4,
+                serialPort: serialPort,
+                baudRate: baudRate
+            });
+
+        window.parent.actualizarSistema(systemParam1)    
+        }
+        
+
+        //-------------------------------------------------------------------------------------------
+        //---------    Funciones de reset de la simulacion
+        //-------------------------------------------------------------------------------------------
+
+        document.getElementById('reset-simulation').addEventListener('click', function() {
+            reset_simulation()
+        });
+
+        
+        function reset_simulation(){
+            socket_conf.emit('resetsimulation', { systemParam1: "APAGAAA"});
+            alert("RESETEAR GRAFICA DE CONTROL")
+            const btn = document.getElementById('start-simulation');
+            btn.style.backgroundColor = '#3498db'; 
+            btn.style.border = "white"; 
+            btn.style.color = "white";   
+            btn.disabled = false;
+
+            const statusDiv = document.getElementById('serial-status');
+        
+            statusDiv.className = 'serial-status status-uncertain';
+            statusDiv.textContent = '- Serial incierto -';
+        }
+
+        function lanzarNewRef(new_value) {
+            window.parent.postMessage({ type: "change_ref" }, new_value); // Mejor reemplazar * por el origen real
+        }
+        function lanzarIMGanimation() {
+            window.parent.postMessage({ type: "IMGanimation" }, "*"); // Mejor reemplazar * por el origen real
+        }
+
+       // Evento que escucha cambios en el estado del puerto serial
+       socket_conf.on('serialStatus', function(data) {
+            const statusDiv = document.getElementById('serial-status');
+            
+            // Actualizar el estado según los datos recibidos
+            if (data.status === 'connected') {
+                statusDiv.className = 'serial-status status-connected';
+                statusDiv.textContent = 'Puerto serie conectado';
+                const btn = document.getElementById('start-simulation');
+                btn.style.backgroundColor = '#cccccc';  // gris claro
+                btn.style.border = '2px solid #888888'; // gris más oscuro
+                btn.style.color = '#444444';   
+                btn.disabled = true;
+            } else if (data.status === 'error') {
+                statusDiv.className = 'serial-status status-error';
+                statusDiv.textContent = 'Error de conexión serial';
+            } else {
+                statusDiv.className = 'serial-status status-uncertain';
+                statusDiv.textContent = '- Serial incierto -';
+            }
+        });
+        
+        //---------------------------------------------------------------
+        //                  Validación de campos
+        //---------------------------------------------------------------
+        
+        function isValidNumber(value) {
+            return value !== '' && !isNaN(value) && isFinite(value);
+        }
+
+        function validateAllFields() {
+            // Validar cada campo individualmente
+            let allValid = true;
+            
+            // Validar parámetros del sistema
+            const param1 = document.getElementById('system-param1').value.trim();
+            const param2 = document.getElementById('system-param2').value.trim();
+            const param3 = document.getElementById('system-param3').value.trim();
+            const param4 = document.getElementById('system-param4').value.trim();
+            const serialPort = document.getElementById('serial-port').value;
+            const customPort = document.getElementById('custom-port').value.trim();
+
+            // Verificar que todos los campos numéricos estén completos y sean válidos
+            if (!param1 || !isValidNumber(param1)) {
+                document.getElementById('system-param1').classList.add('error');
+                allValid = false;
+            } else {
+                document.getElementById('system-param1').classList.remove('error');
+            }
+
+            if (!param2 || !isValidNumber(param2) || parseFloat(param2) <= 0) {
+                document.getElementById('system-param2').classList.add('error');
+                allValid = false;
+            } else {
+                document.getElementById('system-param2').classList.remove('error');
+            }
+
+            if (!param3 || !isValidNumber(param3) || parseFloat(param3) <= 0) {
+                document.getElementById('system-param3').classList.add('error');
+                allValid = false;
+            } else {
+                document.getElementById('system-param3').classList.remove('error');
+            }
+
+            if (!param4 || !isValidNumber(param4)) {
+                document.getElementById('system-param4').classList.add('error');
+                allValid = false;
+            } else {
+                document.getElementById('system-param4').classList.remove('error');
+            }
+
+            // Verificar puerto serial
+            if (!serialPort) {
+                document.getElementById('serial-port').classList.add('error');
+                allValid = false;
+            } else if (serialPort === 'custom' && !customPort) {
+                document.getElementById('custom-port').classList.add('error');
+                allValid = false;
+            } else {
+                document.getElementById('serial-port').classList.remove('error');
+                document.getElementById('custom-port').classList.remove('error');
+            }
+
+            return allValid;
+        }
+    </script>
+</body>
