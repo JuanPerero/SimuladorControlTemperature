@@ -5,7 +5,7 @@ import serial
 import struct
 import time
 import re
-from Tankmodel import *
+#from Tankmodel import *
 from Tempmodel import *
 
 # Configuración del puerto serie
@@ -109,8 +109,10 @@ Instancia_simulacion = None
 def init_simulation(params):
     global Instancia_simulacion
     Tinicial = params['systemParam1']
-    CtteCe = params['systemParam2']
-    CtteM = params['systemParam3']
+    #CtteCe = params['systemParam2']
+    #CtteM = params['systemParam3']
+    CtteCe = "1"
+    CtteM = "2"
     referencia = params['systemParam4']
     # Convertit todos los valores a float
     Tinicial = float(Tinicial)
@@ -136,10 +138,12 @@ def Change_parameters(data):
     if ejecutando:
         print("Cambio de parámetros:", data)
         global Instancia_simulacion
-        #Tinicial = params['systemParam1']
-        CtteCe = params['systemParam2']
-        CtteM = params['systemParam3']
-        referencia = params['systemParam4']
+        Tinicial = data['systemParam1']
+        #CtteCe = data['systemParam2']
+        #CtteM = data['systemParam3']
+        CtteCe = "1"  
+        CtteM = "2"
+        referencia = data['systemParam4']
         # Convertit todos los valores a float
         #Tinicial = float(Tinicial)
         CtteCe = float(CtteCe)

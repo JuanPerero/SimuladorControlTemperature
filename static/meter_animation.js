@@ -94,11 +94,15 @@ document.addEventListener('DOMContentLoaded', function() {
                         "point": [{
                             "startValue": "6.8",
                             "color": "#0075c2",
-                            "dashed": "1"
+                            "dashed": "1",
+                            "radius": "185",
+                            "innerRadius": "80"
                         }, {
                             "startValue": "9.5",
                             "color": "#0075c2",
-                            "dashed": "1"
+                            "dashed": "1",
+                            "radius": "185",
+                            "innerRadius": "80"
                         }, {
                             "startValue": "6.8",
                             "endValue": "9.5",

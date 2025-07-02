@@ -121,14 +121,14 @@
                         <input type="text" id="system-param1" placeholder="0", min="0", max="800">
                     </div>
                     
-                    <div class="form-group">
+                    <div class="form-group" style="display: none;">
                         <label for="system-param2">Calor específico del liquido (C<sub>e</sub>)</label>
-                        <input type="number" id="system-param2" placeholder="Ce" min="0">
+                        <input type="number" id="system-param2" placeholder="0" min="0", value="10">
                     </div>
 
-                    <div class="form-group">
+                    <div class="form-group" style="display: none;">
                         <label for="system-param3">Cantidad en masa del liquido (m)</label>
-                        <input type="text" id="system-param3" placeholder="m", min="0">
+                        <input type="text" id="system-param3" placeholder="0", min="0", value="10">
                     </div>
 
                     <div class="form-group">
@@ -223,15 +223,15 @@
         function cambiarparametros() {
              if (validateAllFields()) {
                 const param1 = document.getElementById('system-param1').value;
-                const param2 = document.getElementById('system-param2').value;
-                const param3 = document.getElementById('system-param3').value;
+                //const param2 = document.getElementById('system-param2').value;
+                //const param3 = document.getElementById('system-param3').value;
                 const param4 = document.getElementById('system-param4').value;
                 alert(`Parámetros cambiados: \r h0 no repercute en el cambio ${param1},\r ${param2},\r ${param3},\r ${param4}`);
                 // Enviar los parámetros al servidor
                 socket_conf.emit('changeparameter', {
                    systemParam1: param1,
-                    systemParam2: param2,   
-                    systemParam3: param3,
+                    //systemParam2: param2,   
+                    //systemParam3: param3,
                     systemParam4: param4,
                 });
             } else {
@@ -242,8 +242,8 @@
 
         function iniciarSimulacion(){
             const systemParam1 = document.getElementById('system-param1').value;
-            const systemParam2 = document.getElementById('system-param2').value;
-            const systemParam3 = document.getElementById('system-param3').value;
+            //const systemParam2 = document.getElementById('system-param2').value;
+            //const systemParam3 = document.getElementById('system-param3').value;
             const systemParam4 = document.getElementById('system-param4').value;
             var serialPort = document.getElementById('serial-port').value;
             if(serialPort=='custom'){
@@ -253,8 +253,6 @@
 
             alert(`Iniciando simulación con los siguientes parámetros:\n
                 T0: ${systemParam1}\n
-                Ce: ${systemParam2}\n
-                Masa: ${systemParam3}\n
                 Referencia: ${systemParam4}\n
                 Puerto: ${serialPort}\n
                 Velocidad: ${baudRate}`);
@@ -266,8 +264,8 @@
             // Enviar los parámetros al servidor
             socket_conf.emit('startSimulation', {
                 systemParam1: systemParam1,
-                systemParam2: systemParam2,
-                systemParam3: systemParam3,
+                //systemParam2: systemParam2,
+                //systemParam3: systemParam3,
                 systemParam4: systemParam4,
                 serialPort: serialPort,
                 baudRate: baudRate
@@ -344,8 +342,8 @@
             
             // Validar parámetros del sistema
             const param1 = document.getElementById('system-param1').value.trim();
-            const param2 = document.getElementById('system-param2').value.trim();
-            const param3 = document.getElementById('system-param3').value.trim();
+            //const param2 = document.getElementById('system-param2').value.trim();
+            //const param3 = document.getElementById('system-param3').value.trim();
             const param4 = document.getElementById('system-param4').value.trim();
             const serialPort = document.getElementById('serial-port').value;
             const customPort = document.getElementById('custom-port').value.trim();
@@ -358,19 +356,19 @@
                 document.getElementById('system-param1').classList.remove('error');
             }
 
-            if (!param2 || !isValidNumber(param2) || parseFloat(param2) <= 0) {
-                document.getElementById('system-param2').classList.add('error');
-                allValid = false;
-            } else {
-                document.getElementById('system-param2').classList.remove('error');
-            }
+            //if (!param2 || !isValidNumber(param2) || parseFloat(param2) <= 0) {
+            //    document.getElementById('system-param2').classList.add('error');
+            //    allValid = false;
+            //} else {
+            //    document.getElementById('system-param2').classList.remove('error');
+            //}
 
-            if (!param3 || !isValidNumber(param3) || parseFloat(param3) <= 0) {
-                document.getElementById('system-param3').classList.add('error');
-                allValid = false;
-            } else {
-                document.getElementById('system-param3').classList.remove('error');
-            }
+            //if (!param3 || !isValidNumber(param3) || parseFloat(param3) <= 0) {
+            //    document.getElementById('system-param3').classList.add('error');
+            //    allValid = false;
+            //} else {
+            //    document.getElementById('system-param3').classList.remove('error');
+            //}
 
             if (!param4 || !isValidNumber(param4)) {
                 document.getElementById('system-param4').classList.add('error');
