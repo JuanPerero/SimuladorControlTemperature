@@ -17,10 +17,10 @@ class Kettle:
         self.ref = reference
 
         # Parametros del sistema
-        self.pA = 2.373e-6
-        self.pB = 2.357e-6
-        self.pC = 1.98
-        self.pD = -0.9802
+        self.pA = -0.04056   # 2.373e-6
+        self.pB =  0.04962   # 2.357e-6
+        self.pC = 1.81
+        self.pD = -0.8187
         # Buffer de salidas
         self.Y1 = T0
         self.Y2 = T0
@@ -44,6 +44,7 @@ class Kettle:
         ####P_part2 = np.sin(2*50*2*np.pi*t)
         ####P = 3872* (0.005-P_part1+P_part2/(400*np.pi))
 
+
         step = 0.01-control_value
         aux_1 = step/2
         aux_2 = np.sin(200*np.pi*step)
@@ -59,6 +60,7 @@ class Kettle:
         ######
 
         # Sistema y sensor unificado
+        #### salida = self.pA*self.X1 + self.pB*self.X2 + self.pC*self.Y1 + self.pD * self.Y2
         salida = self.pA*self.X1 + self.pB*self.X2 + self.pC*self.Y1 + self.pD * self.Y2
         # Actualizacion de los buffers
         self.Y2 = self.Y1

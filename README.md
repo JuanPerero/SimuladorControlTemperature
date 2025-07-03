@@ -1,6 +1,3 @@
-# TankSimulationHardLoop
-Simulación de control para el nivel de un tanque de agua con hardware in the loop. Web local gestionada con Flask
+# Simulación de calentador de agua
 
-
-![Diagrama](assets/tank.png)
-
+Simulación de un sistema calentador de agua para utilizar con un controlador implementado en un microcontrolador en formato hardware in the loop. Web local implementada con Flask.

@@ -120,6 +120,7 @@ def init_simulation(params):
     CtteM = float(CtteM)
     referencia = float(referencia)
     Instancia_simulacion = Kettle(CtteCe, CtteM, referencia, T0=Tinicial)
+    ser.write(b'XX')
 
 def set_reference(valor):
     # Agregar la carga de la referencia desde la web. 
@@ -163,6 +164,8 @@ def clear_all_resources(data):
     global Instancia_simulacion
     del Instancia_simulacion
     Instancia_simulacion = None
+    ser.write(b'XX')
+
     # cerrar puerto serie
     ser.close()
     # Deshabilitacion de bandera de ejecucion
@@ -206,8 +209,9 @@ def ciclo_comando_y_lectura():
 
 def envio_serial(valor_float):
     # Codifica el float en 4 bytes
-    data_bytes = struct.pack('f', valor_float)
-    ser.write(data_bytes)
+    #data_bytes = struct.pack('f', valor_float)
+    #ser.write(data_bytes)
+    ser.write(b'F' + struct.pack('f', valor_float))
 
 def recep_serial():
     # Lee 4 bytes del puerto serial y decodifica a float

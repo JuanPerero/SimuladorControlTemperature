@@ -122,10 +122,10 @@ document.addEventListener('DOMContentLoaded', function() {
                             {
                                 "id": "store-cs-bg",
                                 "type": "rectangle",
-                                "x": "$chartCenterX-130",
-                                "y": "$chartEndY - 20",
-                                "tox": "$chartCenterX + 150",
-                                "toy": "$chartEndY - 2",
+                                "x": "$70-130",
+                                "y": "$120 - 20",
+                                "tox": "$70 + 150",
+                                "toy": "$120 - 2",
                                 "fillcolor": "#0075c2"
                             }, {
                                 "id": "state-cs-text",
@@ -134,8 +134,8 @@ document.addEventListener('DOMContentLoaded', function() {
                                 "label": "Referencia \u00B1 1%",
                                 "fontSize": "12",
                                 "align": "center",
-                                "x": "$chartCenterX + 10",
-                                "y": "$chartEndY - 12"
+                                "x": "120 + 10",
+                                "y": "120 - 12"
                             }]
                         }]
                     }
