@@ -120,22 +120,14 @@ document.addEventListener('DOMContentLoaded', function() {
                             "id": "arcs",
                             "items": [
                             {
-                                "id": "store-cs-bg",
-                                "type": "rectangle",
-                                "x": "$70-130",
-                                "y": "$120 - 20",
-                                "tox": "$70 + 150",
-                                "toy": "$120 - 2",
-                                "fillcolor": "#0075c2"
-                            }, {
                                 "id": "state-cs-text",
                                 "type": "Text",
-                                "color": "#ffffff",
+                                "color": "#0075c2",
                                 "label": "Referencia \u00B1 1%",
                                 "fontSize": "12",
                                 "align": "center",
-                                "x": "120 + 10",
-                                "y": "120 - 12"
+                                "x": "$chartCenterX + 10",
+                                "y": "$chartEndY - 12"
                             }]
                         }]
                     }

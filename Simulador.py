@@ -214,14 +214,38 @@ def envio_serial(valor_float):
     ser.write(b'F' + struct.pack('f', valor_float))
 
 def recep_serial():
-    # Lee 4 bytes del puerto serial y decodifica a float
-    data = ser.read(4)
-    if len(data) < 4:
-        print("Advertencia: no se recibieron 4 bytes")
-        return 0.0
-    valor_float = struct.unpack('f', data)[0]
-    return valor_float
-
+    """
+    Lee 4 bytes del puerto serial con delimitadores 'R' y 'C'.
+    Si no se detectan en 0.2 segundos, limpia el buffer y reintenta.
+    """    
+    # Tiempo de inicio
+    start_time = time.time()
+    # Buffer de entrada
+    buffer = ""
+    while True:
+        if ser.in_waiting > 0:  # Si hay datos en el puerto serial
+            char = ser.read(1).decode('utf-8', errors='ignore')
+            buffer += char
+            # Si encontramos 'R', comenzamos a esperar los datos
+            if buffer == "R":
+                data = ser.read(4)
+                if len(data) < 4:
+                    ser.reset_input_buffer()  # Vaciar el buffer de entrada
+                    return None
+                # Si recibimos 4 bytes, los convertimos a float y  Esperamos el delimitador 'C'
+                valor_float = struct.unpack('f', data)[0]
+                char = ser.read(1).decode('utf-8', errors='ignore')
+                if char == "C":
+                    return valor_float
+                else:
+                    ser.reset_input_buffer()  # Vaciar el buffer de entrada
+                    return None
+            else:
+                buffer = ""
+        # Si pasaron más de 0.2 segundos sin recibir los delimitadores, vaciar el buffer
+        if time.time() - start_time > 200:
+            ser.reset_input_buffer()  # Vaciar el buffer de entrada
+            return None
 
 def iniciar_servidor_flask():
     print("ejecutar el servidor Flask en un hilo separado")
