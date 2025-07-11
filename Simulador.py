@@ -164,10 +164,13 @@ def clear_all_resources(data):
     global Instancia_simulacion
     del Instancia_simulacion
     Instancia_simulacion = None
-    ser.write(b'XX')
-
-    # cerrar puerto serie
-    ser.close()
+    try:
+        ser.write(b'XX')
+        # cerrar puerto serie
+        ser.close()
+    except:
+        print("quizas no estaba abierto")
+    
     # Deshabilitacion de bandera de ejecucion
     global ejecutando  
     ejecutando = False
@@ -196,6 +199,7 @@ def ciclo_comando_y_lectura():
             envio_serial(error)          #    envio_serial(y_sense) 
             # Recepcion del dato del controlador
             ctrl_sig = recep_serial()
+
             # Calculo sobre el modelo
             y_sense = Instancia_simulacion.step(ctrl_sig)
             p_cicle = Instancia_simulacion.harmestain

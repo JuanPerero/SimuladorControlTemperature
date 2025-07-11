@@ -96,19 +96,22 @@ document.addEventListener('DOMContentLoaded', function() {
                             "color": "#0075c2",
                             "dashed": "1",
                             "radius": "185",
-                            "innerRadius": "80"
+                            "innerRadius": "80",
+                            "displayValue": "\u00A0"
                         }, {
                             "startValue": "9.5",
                             "color": "#0075c2",
                             "dashed": "1",
                             "radius": "185",
-                            "innerRadius": "80"
+                            "innerRadius": "80",
+                            "displayValue": "\u00A0"
                         }, {
                             "startValue": "6.8",
                             "endValue": "9.5",
                             "color": "#0075c2",
                             "radius": "185",
-                            "innerRadius": "80"
+                            "innerRadius": "80",
+                            "displayValue": "\u00A0"
                         }]
                     },
                     "annotations": {
@@ -126,8 +129,8 @@ document.addEventListener('DOMContentLoaded', function() {
                                 "label": "Referencia \u00B1 1%",
                                 "fontSize": "12",
                                 "align": "center",
-                                "x": "$chartCenterX + 10",
-                                "y": "$chartEndY - 12"
+                                "x": "$chartStartX + 230",
+                                "y": "$chartStartY + 260"
                             }]
                         }]
                     }

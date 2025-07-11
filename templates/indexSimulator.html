@@ -38,7 +38,38 @@
       flex-direction: column;
       gap: 15px;
     }
-    
+    /* Contenedor para los gráficos horizontales */
+    /* Contenedor para los gráficos horizontales */
+    .horizontal-charts {
+        display: flex;
+        gap: 15px;
+        margin-top: 15px;
+    }
+
+    /* Los gráficos horizontales ocupan el mismo espacio */
+    .horizontal-charts .chart-container {
+        flex: 1;
+        margin: 0;
+        min-height: 220px; /* Aumentar la altura mínima del contenedor */
+        padding: 10px; /* Agregar padding interno */
+        display: flex;
+        flex-direction: column;
+        justify-content: center; /* Centrar verticalmente el canvas */
+    }
+
+    /* Ajustar el tamaño del canvas para que se adapte al contenedor */
+    .horizontal-charts canvas {
+        width: 100% !important;
+        height: 100% !important; /* Mantener altura fija del canvas */
+        max-width: 500px; /* Limitar ancho máximo */
+        margin: 0 auto; /* Centrar horizontalmente */
+    }
+
+    /* Canvas del gráfico de temperatura mantiene su tamaño original */
+    #temperatureChart {
+        display: block;
+        margin: 0 auto;
+    }
     button {
       padding: 10px 15px;
       background-color: #4CAF50;
@@ -86,14 +117,16 @@
         <canvas id="temperatureChart" width="500" height="180"></canvas>
       </div>
       
-      <!-- Gráfico de la señal de control -->
-      <div class="chart-container">
-        <canvas id="controlChart" width="500" height="180"></canvas>
-      </div>
-      
-      <!-- Gráfico de la señal senoidal -->
-      <div class="chart-container">
-        <canvas id="sinusoidalChart" width="500" height="180"></canvas>
+      <div class="horizontal-charts" height="180">
+          <!-- Gráfico de la señal de control -->
+          <div class="chart-container">
+              <canvas id="controlChart" width="500" height="180"></canvas>
+          </div>
+          
+          <!-- Gráfico de la señal senoidal -->
+          <div class="chart-container">
+              <canvas id="sinusoidalChart" width="500" height="180"></canvas>
+          </div>
       </div>
     </div>
     </div>
@@ -312,12 +345,13 @@
         },
         options: {
           ...chartConfig,
+          responsive: true,
           scales: {
             ...chartConfig.scales,
             y: {
               beginAtZero: true,
               min: 0,
-              max: 100,
+              max: 110,
               title: {
                 display: true,
                 text: 'Temperatura (°C)'
@@ -352,12 +386,14 @@
         },
         options: {
           ...chartConfig,
+          maintainAspectRatio: false,
+          responsive: true,
           scales: {
             ...chartConfig.scales,
             y: {
               ...chartConfig.scales.y,
               min: 0,
-              max: 100,
+              max: 110,
               title: {
                 display: true,
                 text: 'Potencia (%)'
@@ -406,6 +442,7 @@
         options: {
           animation: false,
           responsive: true,
+           maintainAspectRatio: false,
           scales: {
             x: {
               type: 'linear',
@@ -471,11 +508,44 @@
     // }, 3000);
     //});
 
+
   </script>
 
 <div style="text-align: center; width: 100%;">
     <iframe id="conf_frame" style="width: 100%; height: 650px; border: none;" src="configuraciones.html" title="Panel de Configuraciones"></iframe>
 </div>
 
+
+
+<script>  
+  
+// Después de crear todos los gráficos, forzar el redimensionamiento
+document.addEventListener('DOMContentLoaded', () => {
+  // ... código de creación de gráficos ...
+  
+  // Forzar redimensionamiento después de crear los gráficos
+  setTimeout(() => {
+    if (window.controlChart) {
+      window.controlChart.resize();
+    }
+    if (window.sinusoidalChart) {
+      window.sinusoidalChart.resize();
+    }
+  }, 100);
+  
+  // También puedes forzar el redimensionamiento cuando cambie el tamaño de la ventana
+  window.addEventListener('resize', () => {
+    if (window.controlChart) {
+      window.controlChart.resize();
+    }
+    if (window.sinusoidalChart) {
+      window.sinusoidalChart.resize();
+    }
+  });
+});
+</script>
+
+
 </body>
+
 </html>

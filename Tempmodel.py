@@ -15,12 +15,35 @@ class Kettle:
         self.dt= dt        # Intervalo de tiempo [s]
         self.T0 = T0       # Temperatura inicial del agua [m]
         self.ref = reference
-
+        
+        
         # Parametros del sistema
+        #           1
+        # ----------------------
+        # 2.093e+05 s^2 + 4186 s
+
+        # 2.373e-06 z + 2.357e-06
+        # -----------------------
+        #  z^2 - 1.98 z + 0.9802
+
+   
+        # 2.373e-06 (z-1) + 2.357e-06 (z-2)
+        # -----------------------
+        #  1 - 1.98 (z-1) + 0.9802 (z-2)
+        
+        
+        self.pA =  2.373e-06
+        self.pB =  2.357e-06
+        self.pC = -1.98
+        self.pD =  0.9802
+        
+        '''
+        # EJ: Parametros del sistema
         self.pA = -0.04056   # 2.373e-6
         self.pB =  0.04962   # 2.357e-6
         self.pC = 1.81
         self.pD = -0.8187
+        '''
         # Buffer de salidas
         self.Y1 = T0
         self.Y2 = T0
@@ -45,23 +68,24 @@ class Kettle:
         ####P = 3872* (0.005-P_part1+P_part2/(400*np.pi))
 
 
-        step = 0.01-control_value
+        step = 0.01-control_value # Inversión + desplazamiento temporal
         aux_1 = step/2
         aux_2 = np.sin(200*np.pi*step)
         P = 3872* (0.005-aux_1+aux_2/(400*np.pi))
         E = 0.01*P
 
-        self.harmestain 
         E = control_value
 
         ###### Podria hacerse en forma separada
         # Etapa del sistema
         # Sensor
         ######
+        
+        # EJ sistema
+        #### salida = self.pA*self.X1 + self.pB*self.X2 + self.pC*self.Y1 + self.pD * self.Y2
 
         # Sistema y sensor unificado
-        #### salida = self.pA*self.X1 + self.pB*self.X2 + self.pC*self.Y1 + self.pD * self.Y2
-        salida = self.pA*self.X1 + self.pB*self.X2 + self.pC*self.Y1 + self.pD * self.Y2
+        salida = self.pA*self.X1 + self.pB*self.X2 - self.pC*self.Y1 - self.pD * self.Y2
         # Actualizacion de los buffers
         self.Y2 = self.Y1
         self.Y1 = salida
@@ -69,7 +93,7 @@ class Kettle:
         self.X1 = E
         return salida
 
-  # Parametros del sistema
+        # Parametros del sistema
         self.pA = 2.373e-6
         self.pB = 2.357e-6
         self.pC = 1.98
